@@ -1,0 +1,44 @@
+{
+    "name": "new_blog_comments",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "private": true,
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "babel ./src --out-dir ./build",
+        "start": "nodemon --exec babel-node src/index.js",
+        "lint": "eslint .",
+        "postinstall": "husky install"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/harrybasra95/new_blog_comments.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/harrybasra95/new_blog_comments/issues"
+    },
+    "homepage": "https://github.com/harrybasra95/new_blog_comments#readme",
+    "devDependencies": {
+        "@babel/cli": "^7.17.10",
+        "@babel/core": "^7.18.5",
+        "@babel/node": "^7.18.5",
+        "@babel/preset-env": "^7.18.2",
+        "@babel/runtime": "^7.18.3",
+        "eslint": "^8.17.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "husky": "^8.0.1",
+        "nodemon": "^2.0.16",
+        "prettier": "^2.7.1"
+    },
+    "dependencies": {
+        "@commitlint/cli": "^17.0.3",
+        "@commitlint/config-conventional": "^17.0.3",
+        "dotenv": "^16.0.1",
+        "express": "^4.18.1"    }
+}
