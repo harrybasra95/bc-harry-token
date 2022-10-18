@@ -12,6 +12,7 @@ let accounts;
 let contract;
 let managerAccount;
 let lastTransferEvent;
+let lastApprovalEvent;
 
 beforeEach(async () => {
     accounts = await web3.eth.getAccounts();
@@ -24,6 +25,9 @@ beforeEach(async () => {
         .send({ from: managerAccount, gas: '1000000' });
     contract.events.Transfer({}, (error, event) => {
         lastTransferEvent = event;
+    });
+    contract.events.Approval({}, (error, event) => {
+        lastApprovalEvent = event;
     });
 });
 
@@ -65,5 +69,37 @@ describe('Harry Token', () => {
         assert(lastTransferEvent.returnValues['0'], managerAccount);
         assert(lastTransferEvent.returnValues['1'], secondAccount);
         assert(lastTransferEvent.returnValues['2'], transferAmount);
+    });
+
+    it('checks approval for tokens for delegated transfer', async () => {
+        const [, secondAccount] = accounts;
+        const approvedAmount = 10000;
+        await contract.methods
+            .approve(managerAccount, approvedAmount)
+            .send({ from: secondAccount });
+        const updatedAmount = await contract.methods
+            .allowance(secondAccount, managerAccount)
+            .call();
+        assert.equal(updatedAmount, approvedAmount);
+        assert.equal(lastApprovalEvent.returnValues['0'], secondAccount);
+        assert.equal(lastApprovalEvent.returnValues['1'], managerAccount);
+        assert.equal(lastApprovalEvent.returnValues['2'], approvedAmount);
+    });
+
+    it('checks for transfer for function', async () => {
+        const [, secondAccount, thirdAccount] = accounts;
+        const approvedAmount = 10000;
+        await contract.methods.transfer(secondAccount, approvedAmount).send({
+            from: managerAccount,
+        });
+        await contract.methods
+            .approve(managerAccount, approvedAmount)
+            .send({ from: secondAccount });
+        await contract.methods
+            .transferFrom(secondAccount, thirdAccount, approvedAmount)
+            .send({ from: managerAccount });
+        assert(lastTransferEvent.returnValues['0'], secondAccount);
+        assert(lastTransferEvent.returnValues['1'], thirdAccount);
+        assert(lastTransferEvent.returnValues['2'], approvedAmount);
     });
 });
