@@ -15,10 +15,11 @@ contract HarryToken {
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
 
-    function transfer(address _to, uint256 _value) public {
-        require(balanceOf[msg.sender] < _value && _value > 0);
+    function transfer(address _to, uint256 _value) public returns (bool) {
+        require(balanceOf[msg.sender] > _value && _value > 0);
         balanceOf[msg.sender] -= _value;
         balanceOf[_to] += _value;
         emit Transfer(msg.sender, _to, _value);
+        return true;
     }
 }

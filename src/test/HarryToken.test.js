@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Web3 from 'web3';
 import ganache from 'ganache';
 import assert from 'assert';
@@ -10,6 +11,7 @@ const web3 = new Web3(ganache.provider());
 let accounts;
 let contract;
 let managerAccount;
+let lastTransferEvent;
 
 beforeEach(async () => {
     accounts = await web3.eth.getAccounts();
@@ -20,6 +22,9 @@ beforeEach(async () => {
             arguments: [INITIAL_SUPPLY],
         })
         .send({ from: managerAccount, gas: '1000000' });
+    contract.events.Transfer({}, (error, event) => {
+        lastTransferEvent = event;
+    });
 });
 
 describe('Harry Token', () => {
@@ -46,10 +51,9 @@ describe('Harry Token', () => {
     it('checks transfer function and transfer event', async () => {
         const [, secondAccount] = accounts;
         const transferAmount = 100000;
-        const transfer = await contract.methods.transfer(
-            secondAccount,
-            transferAmount
-        );
+        await contract.methods
+            .transfer(secondAccount, transferAmount)
+            .send({ from: managerAccount });
         const firstAccountBal = await contract.methods
             .balanceOf(managerAccount)
             .call();
@@ -58,6 +62,8 @@ describe('Harry Token', () => {
             .call();
         assert(firstAccountBal, INITIAL_SUPPLY - transferAmount);
         assert(secondAccountBal, transferAmount);
-        console.log(transfer);
+        assert(lastTransferEvent.returnValues['0'], managerAccount);
+        assert(lastTransferEvent.returnValues['1'], secondAccount);
+        assert(lastTransferEvent.returnValues['2'], transferAmount);
     });
 });
